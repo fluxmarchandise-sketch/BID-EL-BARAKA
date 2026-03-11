@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>بيض البركة</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+text-align:center;
+}
+
+header{
+background:white;
+padding:20px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+header img{
+max-width:260px;
+height:auto;
+}
+
+.products{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+padding:10px;
+}
+
+.card{
+background:white;
+width:240px;
+margin:15px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+padding:15px;
+}
+
+.card img{
+width:100%;
+height:180px;
+object-fit:contain;
+}
+
+.price{
+color:#2e7d32;
+font-size:20px;
+font-weight:bold;
+margin-top:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<img src="logo.png">
+</header>
+
+<div class="products" id="products"></div>
+
+<script>
+
+let sheetURL="https://docs.google.com/spreadsheets/d/13vbimBbsAQOqe_9_dTQNtLUQZObklkwj-3ggGg88ruo/export?format=csv";
+
+fetch(sheetURL)
+.then(res=>res.text())
+.then(data=>{
+
+let rows=data.split("\n").slice(1);
+
+rows.forEach(function(row){
+
+let cols=row.split(",");
+
+let name=cols[0];
+let price=cols[1];
+let image=cols[2];
+
+if(name){
+
+document.getElementById("products").innerHTML+=
+
+'<div class="card">'+
+'<img src="'+image+'">'+
+'<h3>'+name+'</h3>'+
+'<p class="price">'+price+' DH</p>'+
+'</div>';
+
+}
+
+});
+
+});
+
+</script>
+
+</body>
+</html>
