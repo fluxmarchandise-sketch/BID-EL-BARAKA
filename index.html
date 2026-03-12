@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>بيض البركة</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+}
+
+/* HEADER */
+
+header{
+background:white;
+padding:15px;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+position:sticky;
+top:0;
+z-index:100;
+}
+
+header img{
+max-width:200px;
+}
+
+/* CART ICON */
+
+.cart-icon{
+position:absolute;
+right:20px;
+top:20px;
+font-size:24px;
+cursor:pointer;
+}
+
+.cart-count{
+background:red;
+color:white;
+font-size:12px;
+padding:3px 7px;
+border-radius:50%;
+position:absolute;
+top:-8px;
+right:-10px;
+}
+
+/* PRODUCTS */
+
+.products{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:16px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+padding:20px;
+text-align:center;
+}
+
+.card img{
+width:100%;
+height:230px;
+object-fit:contain;
+}
+
+.card h3{
+font-size:20px;
+margin:10px 0;
+}
+
+.price{
+color:#2e7d32;
+font-size:22px;
+font-weight:bold;
+}
+
+.add-btn{
+background:#2196f3;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:8px;
+margin-top:10px;
+}
+
+/* CART */
+
+.cart{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+max-height:60%;
+overflow:auto;
+display:none;
+box-shadow:0 -3px 20px rgba(0,0,0,0.2);
+padding:15px;
+}
+
+.cart-item{
+display:flex;
+align-items:center;
+margin-bottom:10px;
+}
+
+.cart-item img{
+width:50px;
+height:50px;
+object-fit:contain;
+margin-right:10px;
+}
+
+.total{
+font-weight:bold;
+color:#2e7d32;
+font-size:18px;
+margin-top:10px;
+}
+
+.order-btn{
+background:#25D366;
+color:white;
+border:none;
+padding:12px;
+border-radius:10px;
+width:100%;
+margin-top:10px;
+font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<img src="logo.png">
+
+<div class="cart-icon" onclick="toggleCart()">
+
+🛒
+<span class="cart-count" id="cartCount">0</span>
+
+</div>
+
+</header>
+
+<div class="products" id="products"></div>
+
+<div class="cart" id="cart">
+
+<h3>سلة المشتريات</h3>
+
+<div id="cartItems"></div>
+
+<p class="total" id="total"></p>
+
+<button class="order-btn" onclick="sendWhatsApp()">
+إرسال الطلب عبر واتساب
+</button>
+
+</div>
+
+<script>
+
+let sheetURL="https://docs.google.com/spreadsheets/d/13vbimBbsAQOqe_9_dTQNtLUQZObklkwj-3ggGg88ruo/export?format=csv";
+
+let cart=[];
+
+fetch(sheetURL)
+.then(res=>res.text())
+.then(data=>{
+
+let rows=data.split("\n").slice(1);
+
+rows.forEach(function(row){
+
+let cols=row.split(",");
+
+let name=cols[0];
+let price=parseFloat(cols[1]);
+let image=cols[2];
+
+if(name){
+
+document.getElementById("products").innerHTML+=
+
+'<div class="card">'+
+'<img src="'+image+'">'+
+'<h3>'+name+'</h3>'+
+'<p class="price">'+price+' DH</p>'+
+'<button class="add-btn" onclick="addProduct(\''+name+'\','+price+',\''+image+'\')">إضافة</button>'+
+'</div>';
+
+}
+
+});
+
+});
+
+function addProduct(name,price,image){
+
+let qty=prompt("كم العدد؟");
+
+qty=parseInt(qty);
+
+if(!qty || qty<=0) return;
+
+cart.push({name:name,price:price,image:image,qty:qty});
+
+updateCart();
+
+}
+
+function updateCart(){
+
+let html="";
+let total=0;
+let count=0;
+
+cart.forEach(function(p){
+
+let subtotal=p.price*p.qty;
+
+total+=subtotal;
+count+=p.qty;
+
+html+=
+'<div class="cart-item">'+
+'<img src="'+p.image+'">'+
+'<div>'+
+p.name+"<br>"+
+p.qty+" × "+p.price+" DH"+
+'</div>'+
+'</div>';
+
+});
+
+total+=10;
+
+document.getElementById("cartItems").innerHTML=html;
+
+document.getElementById("total").innerText=
+"المجموع + التوصيل = "+total+" DH";
+
+document.getElementById("cartCount").innerText=count;
+
+}
+
+function toggleCart(){
+
+let c=document.getElementById("cart");
+
+if(c.style.display=="block"){
+c.style.display="none";
+}else{
+c.style.display="block";
+}
+
+}
+
+function sendWhatsApp(){
+
+let phone="212627320807";
+
+let message="طلب جديد:%0A";
+
+let total=0;
+
+cart.forEach(function(p){
+
+let subtotal=p.price*p.qty;
+
+total+=subtotal;
+
+message+=p.name+" - "+p.qty+" × "+p.price+" DH%0A";
+
+});
+
+total+=10;
+
+message+="%0Aالتوصيل: 10 DH%0A";
+
+message+="المجموع: "+total+" DH";
+
+window.open("https://wa.me/"+phone+"?text="+message);
+
+}
+
+</script>
+
+</body>
+</html>
